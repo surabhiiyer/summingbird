@@ -23,10 +23,7 @@ import com.twitter.summingbird.storm.{ StormStore, Storm, Executor, StormExecuti
 import com.twitter.summingbird.storm.option.{FlatMapParallelism, SummerParallelism, SpoutParallelism}
 import backtype.storm.{Config => BTConfig}
 import com.twitter.scalding.Args
-import com.twitter.tormenta.spout.TwitterSpout
 import com.twitter.util.Await
-import twitter4j.TwitterStreamFactory
-import twitter4j.conf.ConfigurationBuilder
 
 
 object ExeStorm {
@@ -40,6 +37,7 @@ object ExeStorm {
   * WordCount job defined in ExampleJob.scala on a storm
   * cluster.
   */
+
 object StormRunner {
   /**
     * These imports bring the requisite serialization injections, the
@@ -55,20 +53,20 @@ object StormRunner {
     *
     * http://tugdualgrall.blogspot.com/2012/11/couchbase-create-large-dataset-using.html
     */
-  lazy val config = new ConfigurationBuilder()
+  /*lazy val config = new ConfigurationBuilder()
     .setOAuthConsumerKey("mykey")
     .setOAuthConsumerSecret("mysecret")
     .setOAuthAccessToken("token")
     .setOAuthAccessTokenSecret("tokensecret")
     .setJSONStoreEnabled(true) // required for JSON serialization
     .build
-
+*/
   /**
     * "spout" is a concrete Storm source for Status data. This will
     * act as the initial producer of Status instances in the
     * Summingbird word count job.
     */
-  val spout = TwitterSpout(new TwitterStreamFactory(config))
+  val spout = new NewSpout()
 
   /**
     * And here's our MergeableStore supplier.
@@ -89,7 +87,8 @@ object StormRunner {
     *
     * First, the backing store:
     */
-  lazy val stringLongStore =
+
+ lazy val stringLongStore =
     Memcache.mergeable[(String, BatchID), Long]("urlCount")
 
   /**
@@ -111,7 +110,7 @@ object StormRunner {
     * locally.)
     */
 
-  def apply(args: Args): StormExecutionConfig = {
+ def apply(args: Args): StormExecutionConfig = {
     new StormExecutionConfig {
       override val name = "SummingbirdExample"
 
@@ -126,23 +125,20 @@ object StormRunner {
                       .set(SpoutParallelism(16))
                       .set(CacheSize(100))
       )
-      override def graph = wordCount[Storm](spout, storeSupplier)
+    override def graph = wordCount[Storm](spout, storeSupplier)
     }
   }
 
   /**
     * Once you've got this running in the background, fire up another
     * repl and query memcached for some counts.
-    *
     * The following commands will look up words. Hitting a word twice
     * will show that Storm is updating Memcache behind the scenes:
-    {{{
     scala>     lookup("i") // Or any other common word
     res7: Option[Long] = Some(1774)
 
     scala>     lookup("i")
     res8: Option[Long] = Some(1779)
-    }}}
     */
   def lookup(word: String): Option[Long] =
     Await.result {
