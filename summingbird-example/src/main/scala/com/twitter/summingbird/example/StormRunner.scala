@@ -23,6 +23,7 @@ import com.twitter.summingbird.storm.{ StormStore, Storm, Executor, StormExecuti
 import com.twitter.summingbird.storm.option.{FlatMapParallelism, SummerParallelism, SpoutParallelism}
 import backtype.storm.{Config => BTConfig}
 import com.twitter.scalding.Args
+import com.twitter.summingbird.Producer
 import com.twitter.util.Await
 
 
@@ -66,8 +67,8 @@ object StormRunner {
     * act as the initial producer of Status instances in the
     * Summingbird word count job.
     */
-  val spout = new NewSpout()
 
+  val spout: Producer[Storm,String] = RandomSentenceSpout("tweet")
   /**
     * And here's our MergeableStore supplier.
     *

@@ -19,11 +19,12 @@ package com.twitter.summingbird.example
 import com.twitter.summingbird._
 import com.twitter.summingbird.batch.Batcher
 import com.twitter.summingbird.storm.{ MergeableStoreSupplier, Storm }
-import twitter4j.Status
-import twitter4j.TwitterStreamFactory
-import twitter4j.conf.ConfigurationBuilder
+//import twitter4j.Status
+//import twitter4j.TwitterStreamFactory
+//import twitter4j.conf.ConfigurationBuilder
 import backtype.storm.tuple.Tuple
-
+import java.util.{Locale, Date}
+import java.text.DateFormat._
 object StatusStreamer {
   /**
     * These two items are required to run Summingbird in
@@ -31,8 +32,11 @@ object StatusStreamer {
     * scalding jobs.
     */
 
- // implicit val timeOf: TimeExtractor[Tuple] = TimeExtractor(_.getCreatedAt.getTime)
+//implicit val timeOf: TimeExtractor[Tuple] = TimeExtractor(_.getCreatedAt.getTime)
 
+  //implicit val batcher = Batcher.ofHours(1)
+  implicit val timeOf: TimeExtractor[String] = TimeExtractor(_ => new Date().getTime)
+  //implicit val timeOf: TimeExtractor[Tuple] = TimeExtractor(getDateInstance(LONG, Locale.FRANCE))
   implicit val batcher = Batcher.ofHours(1)
 
   def tokenize(text: String) : TraversableOnce[String] =
