@@ -74,6 +74,8 @@ object Memcache {
       .convert(keyEncoder[K](keyPrefix))
   }
 
-  def mergeable[K: Codec, V: Codec: Monoid](keyPrefix: String): MergeableStore[K, V] =
+  def mergeable[K: Codec, V: Codec: Monoid](keyPrefix: String): MergeableStore[K, V] = {
+    println("in producer")
     MergeableStore.fromStore(store[K, V](keyPrefix))
+  }
 }

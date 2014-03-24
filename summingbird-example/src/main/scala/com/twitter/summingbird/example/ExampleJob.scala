@@ -55,6 +55,7 @@ object StatusStreamer {
     store: P#Store[String, Long]) =
     source
       .filter(_ != null)
-      .flatMap { tweet: String => tokenize(tweet).map(_ -> 1L) }
+      .flatMap { tweet: String => tokenize(tweet).map(_ -> 1L)}
       .sumByKey(store)
+    println("##wordcount##")
 }

@@ -29,6 +29,7 @@ import com.twitter.util.Await
 
 object ExeStorm {
   def main(args: Array[String]) {
+    println("ok executing StormRunner")
     Executor(args, StormRunner(_))
   }
 }
@@ -90,10 +91,12 @@ object StormRunner {
     */
 
  lazy val stringLongStore =
-    Memcache.mergeable[(String, BatchID), Long]("urlCount")
+    Memcache.mergeable[(String, BatchID), Long]("tweet")
 
+  println("##LongStore##")
+  println(stringLongStore)
   /**
-    * the param to store is by name, so this is still not created created
+    * the param too store is by name, so this is still not created created
     * yet
     */
   val storeSupplier: StormStore[String, Long] = Storm.store(stringLongStore)
@@ -112,6 +115,7 @@ object StormRunner {
     */
 
  def apply(args: Args): StormExecutionConfig = {
+    println("in apply")
     new StormExecutionConfig {
       override val name = "SummingbirdExample"
 
@@ -141,6 +145,7 @@ object StormRunner {
     scala>     lookup("i")
     res8: Option[Long] = Some(1779)
     */
+
   def lookup(word: String): Option[Long] =
     Await.result {
       stringLongStore.get(word -> StatusStreamer.batcher.currentBatch)
